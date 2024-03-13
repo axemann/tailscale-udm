@@ -13,6 +13,7 @@ cp "${SOURCE}/package/manage.sh" "${WORKDIR}/tailscale/manage.sh"
 cp "${SOURCE}/package/unios_"*".sh" "${WORKDIR}/tailscale/"
 cp "${SOURCE}/package/tailscale-env" "${WORKDIR}/tailscale/tailscale-env"
 cp "${SOURCE}/package/tailscale-install.service" "${WORKDIR}/tailscale/tailscale-install.service"
+cp "${SOURCE}/package/tailscale-install.timer" "${WORKDIR}/tailscale/tailscale-install.timer"
 cp "${SOURCE}/LICENSE" "${WORKDIR}/tailscale/LICENSE"
 
 echo "Building tailscale-udm package"
