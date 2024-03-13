@@ -1,6 +1,7 @@
 #!/bin/sh
 export TAILSCALE_ROOT="${TAILSCALE_ROOT:-/data/tailscale}"
 export TAILSCALE="tailscale"
+export TAILSCALE_DEFAULTS="/etc/default/tailscaled"
 
 _tailscale_is_running() {
     systemctl is-active --quiet tailscaled
@@ -17,10 +18,10 @@ _tailscale_start() {
     sleep 5
 
     if _tailscale_is_running; then
-      echo "Tailscaled started successfully"
+        echo "Tailscaled started successfully"
     else
-      echo "Tailscaled failed to start"
-      exit 1
+        echo "Tailscaled failed to start"
+        exit 1
     fi
 
     echo "Run tailscale up to configure the interface."
@@ -56,18 +57,27 @@ _tailscale_install() {
     apt install -y tailscale="${tailscale_version}"
 
     echo "Configuring Tailscale port..."
-    sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" /etc/default/tailscaled || {
-        echo "Failed to configure Tailscale port"
-        echo "Check that the file /etc/default/tailscaled exists and contains the line PORT=\"${PORT:-41641}\"."
+    if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
+        echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
         exit 1
-    }
+    else
+        sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" /etc/default/tailscaled
+        echo "Done"
+    fi
 
     echo "Configuring Tailscaled startup flags..."
-    sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" /etc/default/tailscaled || {
-        echo "Failed to configure Tailscaled startup flags"
-        echo "Check that the file /etc/default/tailscaled exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
+    if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
+        export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+    else
+        export TAILSCALED_FLAGS="--socket /var/run/tailscale/tailscaled.sock --state /data/tailscale/tailscaled.state"
+    fi
+    if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
+        echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
         exit 1
-    }
+    else
+        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" /etc/default/tailscaled
+        echo "Done"
+    fi
 
     echo "Restarting Tailscale daemon to detect new configuration..."
     systemctl restart tailscaled.service || {
