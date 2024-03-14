@@ -131,11 +131,10 @@ _tailscale_route() {
 
     echo "This will enable you to expose Tailnet devices to machines on your network."
     echo "This is an ALPHA feature, and may break your system."
-    [[ "$(read -e -p 'Do you wish to proceed? [y/N]> '; echo $REPLY)" == [Nn]* ]] && echo "Tailnet routing NOT enabled." || {
-    # read -p "Do you wish to proceed? (y/N):" IF_CHOICE
+    yes_or_no "Do you wish to proceed? (y/N):" && exit 1 || {
     # IF_CHOICE=${IF_CHOICE:-N}
     # echo "${IF_CHOICE}" # Remove before submitting PR
-    echo ${REPLY}
+    echo ${yn}
     sleep 5s # Remove before submitting PR
     # if [[ ${IF_CHOICE} == [Nn]* ]]; then
     #     echo "Tailnet routing NOT enabled."
@@ -174,4 +173,14 @@ _tailscale_route() {
         echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
         exit 1
     }
+}
+yes_or_no() {
+    while true; do
+        read -p "$* [y/n]: " yn
+        yn=${yn:-N}
+        case $yn in
+            [Yy]*) return 0  ;;
+            [Nn]*) echo "Aborted" ; return  1 ;;
+        esac
+    done
 }
