@@ -131,7 +131,7 @@ _tailscale_route() {
 
     echo "This will enable you to expose Tailnet devices to machines on your network."
     echo "This is an ALPHA feature, and may break your system."
-    yes_or_no "Do you wish to proceed? (y/N):" && exit 1 || {
+    yes_or_no "Do you wish to proceed?" && exit 1 || {
     # IF_CHOICE=${IF_CHOICE:-N}
     # echo "${IF_CHOICE}" # Remove before submitting PR
     echo ${yn}
