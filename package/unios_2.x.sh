@@ -42,12 +42,18 @@ _tailscale_install() {
     if [ -z $TAILSCALED_INTERFACE ]; then
         read -p "Do you wish to enable subnet routing? (y/N):" IF_CHOICE
         IF_CHOICE=${IF_CHOICE:-n}
+        echo "${IF_CHOICE}"
+        sleep 5s
         case $1 in
             [Yy]*) export TAILSCALED_INTERFACE="true"
             sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"" ${TAILSCALE_ROOT}/tailscale-env
+            echo "${TAILSCALED_INTERFACE}"
+            sleep 5s
             ;;
             [Nn]*) export TAILSCALED_INTERFACE="false"
             sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"" ${TAILSCALE_ROOT}/tailscale-env
+            echo "${TAILSCALED_INTERFACE}"
+            sleep 5s
             ;;
         esac
     fi
@@ -130,7 +136,6 @@ _tailscale_install() {
         systemctl enable --now tailscale-install.timer
     fi
 
-    echo "Installation complete, run '$0 start' to start Tailscale"
 }
 
 _tailscale_uninstall() {
