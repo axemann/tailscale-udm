@@ -115,7 +115,6 @@ case $1 in
     tailscale_install "$2"
     ;;
   "install!")
-    export TAILSCALED_INTERFACE=""
     tailscale_install "$2"
     ;;
   "uninstall")
