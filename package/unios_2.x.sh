@@ -82,13 +82,13 @@ _tailscale_install() {
     if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
         export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
     else
-        export TAILSCALED_FLAGS="--socket /var/run/tailscale/tailscaled.sock --state /data/tailscale/tailscaled.state"
+        export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
     fi
     if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
         echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
         exit 1
     else
-        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
 
