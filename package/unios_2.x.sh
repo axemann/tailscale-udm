@@ -131,14 +131,16 @@ _tailscale_route() {
 
     echo "This will enable you to expose Tailnet devices to machines on your network."
     echo "This is an ALPHA feature, and may break your system."
-    read -p "Do you wish to proceed? (y/N):" IF_CHOICE
-    IF_CHOICE=${IF_CHOICE:-N}
-    echo "${IF_CHOICE}" # Remove before submitting PR
+    [[ "$(read -e -p 'Do you wish to proceed? [y/N]> '; echo $REPLY)" == [Nn]* ]] && echo "Tailnet routing NOT enabled." || {
+    # read -p "Do you wish to proceed? (y/N):" IF_CHOICE
+    # IF_CHOICE=${IF_CHOICE:-N}
+    # echo "${IF_CHOICE}" # Remove before submitting PR
+    echo ${REPLY}
     sleep 5s # Remove before submitting PR
-    if [ IF_CHOICE == [Nn]* ]; then
-        echo "Tailnet routing NOT enabled."
-        exit 1
-    else
+    # if [[ ${IF_CHOICE} == [Nn]* ]]; then
+    #     echo "Tailnet routing NOT enabled."
+    #     exit 1
+    # else
         case $2 in
             "enable")
                 export TAILSCALED_INTERFACE="true"
@@ -155,7 +157,8 @@ _tailscale_route() {
                 export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
                 ;;
         esac
-    fi
+    # fi
+    }
 
     # if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
     #     export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
