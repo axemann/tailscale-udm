@@ -146,14 +146,14 @@ _tailscale_route() {
                     echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
                     sleep 5s # Remove before submitting PR
                     sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
-                    export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+                    export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
                     ;;
                 "disable")
                     export TAILSCALED_INTERFACE="false"
                     echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
                     sleep 5s # Remove before submitting PR
                     sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
-                    export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+                    export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
                     ;;
             esac
         # fi
@@ -164,7 +164,7 @@ _tailscale_route() {
         #     export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
         # fi
 
-        echo "Updating ${TAILSCALE_DEFAULTS} to ${2} Tailnet routing..."
+        echo "Updating ${TAILSCALE_DEFAULTS} to ${1} Tailnet routing..."
         if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
             echo "Failed to configure Tailscaled startup flags"
             echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
