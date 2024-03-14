@@ -150,7 +150,6 @@ case $1 in
       case $2 in
         "enable")
           _tailscale_route $2
-          tailscale_stop
         ;;
         "disable")
           _tailscale_route $2
