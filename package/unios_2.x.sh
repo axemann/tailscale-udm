@@ -128,40 +128,22 @@ _tailscale_route() {
     echo "This will enable you to expose Tailnet devices to machines on your network."
     echo "WARNING: It is currently an ALPHA feature, and may break your system."
     yes_or_no "Do you wish to proceed?" && {
-        # IF_CHOICE=${IF_CHOICE:-N}
-        # echo "${IF_CHOICE}" # Remove before submitting PR
-        echo ${yn} # Remove before submitting PR
-        sleep 5s # Remove before submitting PR
-        # if [[ ${IF_CHOICE} == [Nn]* ]]; then
-        #     echo "Tailnet routing NOT enabled."
-        #     exit 1
-        # else
-        echo ${1} # Remove before submitting PR
         case $1 in
             "enable")
-                export TAILSCALED_INTERFACE="true"
-                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                sleep 5s # Remove before submitting PR
-                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
+                ## Uncomment below once enough people have tested
+                # export TAILSCALED_INTERFACE="true"
+                # sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
                 export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
                 ;;
             "disable")
-                export TAILSCALED_INTERFACE="false"
-                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                sleep 5s # Remove before submitting PR
-                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
+                ## Uncomment below once enough people have tested
+                # export TAILSCALED_INTERFACE="false"
+                # sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
                 export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
                 ;;
             *)
                 echo "Something went wrong! :-("
         esac
-        # fi
-
-        # if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
-        #     export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
-        # else
-        #     export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
-        # fi
 
         echo "Updating ${TAILSCALE_DEFAULTS} to ${1} Tailnet routing..."
         if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
@@ -169,7 +151,6 @@ _tailscale_route() {
             echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
             exit 1
         else
-            echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
             sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" ${TAILSCALE_DEFAULTS}
             echo "Done"
         fi
@@ -180,7 +161,7 @@ _tailscale_route() {
             echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
             exit 1
             }
-        } || exit 1
+        } || exit 1 && echo "No changes made to routing configuration."
     }
 yes_or_no() {
     while true; do
