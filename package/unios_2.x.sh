@@ -136,7 +136,8 @@ _tailscale_route() {
         #     echo "Tailnet routing NOT enabled."
         #     exit 1
         # else
-        case $2 in
+        echo ${1} # Remove before submitting PR
+        case $1 in
             "enable")
                 export TAILSCALED_INTERFACE="true"
                 echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
