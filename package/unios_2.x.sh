@@ -192,7 +192,8 @@ _tailscale_routing() {
             echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
             exit 1
         else
-                sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+            echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
+            sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
             echo "Done"
         fi
 
