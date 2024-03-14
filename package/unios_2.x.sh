@@ -147,6 +147,7 @@ _tailscale_route() {
                     sleep 5s # Remove before submitting PR
                     sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
                     export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+                    echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
                     ;;
                 "disable")
                     export TAILSCALED_INTERFACE="false"
@@ -154,6 +155,7 @@ _tailscale_route() {
                     sleep 5s # Remove before submitting PR
                     sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
                     export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+                    echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
                     ;;
             esac
         # fi
@@ -170,6 +172,7 @@ _tailscale_route() {
             echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
             exit 1
         else
+            echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
             sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
             echo "Done"
         fi
