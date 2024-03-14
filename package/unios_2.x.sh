@@ -124,9 +124,9 @@ _tailscale_uninstall() {
     rm -f /lib/systemd/system/tailscale-install.service || true
 }
 
-_tailscale_route() {
+_tailscale_routing() {
     echo "This will enable you to expose Tailnet devices to machines on your network."
-    echo "WARNING: It is currently an ALPHA feature, and may break your system."
+    echo "WARNING: This is currently an ALPHA feature, and may break your system."
     yes_or_no "Do you wish to proceed?" && {
         case $1 in
             "enable")

@@ -140,7 +140,7 @@ case $1 in
       echo "Tailscale is already up to date"
     fi
     ;;
-  "route")
+  "routing")
     # shellcheck source=package/tailscale-env
     . "${PACKAGE_ROOT}/tailscale-env"
     if ! _tailscale_is_installed; then
@@ -149,10 +149,10 @@ case $1 in
     else
       case $2 in
         "enable")
-          _tailscale_route $2
+          _tailscale_routing $2
         ;;
         "disable")
-          _tailscale_route $2
+          _tailscale_routing $2
         ;;
         *)
           echo "Usage: $0 $1 {enable|disable}"
@@ -175,7 +175,7 @@ case $1 in
     tailscale_start
     ;;
   *)
-    echo "Usage: $0 {status|start|stop|restart|install|uninstall|update|route}"
+    echo "Usage: $0 {status|start|stop|restart|install|uninstall|update|routing}"
     exit 1
     ;;
 esac
