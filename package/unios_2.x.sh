@@ -24,7 +24,7 @@ _tailscale_start() {
         exit 1
     fi
 
-    echo "Run tailscale up to configure the interface."
+    echo "Run 'tailscale up' to configure the interface."
 }
 
 _tailscale_stop() {
@@ -39,7 +39,20 @@ _tailscale_install() {
     # shellcheck source=package/tailscale-env
     . "${TAILSCALE_ROOT}/tailscale-env"
 
-    tailscale_version="${1:-$(curl -sSLq --ipv4 "https://pkgs.tailscale.com/${TAILSCALE_CHANNEL}/?mode=json" | jq -r '.Tarballs.arm64 | capture("tailscale_(?<version>[^_]+)_").version')}"
+    if [ -z $TAILSCALED_INTERFACE ]; then
+        read -p "Do you wish to enable subnet routing? (y/N):" IF_CHOICE
+        IF_CHOICE=${IF_CHOICE:-n}
+        case $1 in
+            [Yy]*) export TAILSCALED_INTERFACE="true"
+            sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"" ${TAILSCALE_ROOT}/tailscale-env
+            ;;
+            [Nn]*) export TAILSCALED_INTERFACE="false"
+            sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"" ${TAILSCALE_ROOT}/tailscale-env
+            ;;
+        esac
+    fi
+
+    TAILSCALE_VERSION="${1:-$(curl -sSLq --ipv4 "https://pkgs.tailscale.com/${TAILSCALE_CHANNEL}/?mode=json" | jq -r '.Tarballs.arm64 | capture("tailscale_(?<version>[^_]+)_").version')}"
 
     echo "Installing latest Tailscale package repository..."
     if [ "${VERSION_CODENAME}" = "stretch" ]; then
@@ -53,15 +66,15 @@ _tailscale_install() {
     echo "Updating package lists..."
     apt update
 
-    echo "Installing Tailscale ${tailscale_version}..."
-    apt install -y tailscale="${tailscale_version}"
+    echo "Installing Tailscale ${TAILSCALE_VERSION}..."
+    apt install -y tailscale="${TAILSCALE_VERSION}"
 
     echo "Configuring Tailscale port..."
     if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
         echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
         exit 1
     else
-        sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" /etc/default/tailscaled
+        sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
 
@@ -75,7 +88,7 @@ _tailscale_install() {
         echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
         exit 1
     else
-        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" /etc/default/tailscaled
+        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
 
