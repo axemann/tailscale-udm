@@ -144,12 +144,13 @@ case $1 in
     # shellcheck source=package/tailscale-env
     . "${PACKAGE_ROOT}/tailscale-env"
     if ! _tailscale_is_installed; then
-      echo "Tailscale is not installed, please run '$0 install' before using this option."
+      echo "Tailscale is not installed, please run '$0 install' before invoking this option."
       exit 1
     else
       case $2 in
         "enable")
           _tailscale_route $2
+          tailscale_stop
         ;;
         "disable")
           _tailscale_route $2
