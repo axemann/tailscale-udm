@@ -130,53 +130,53 @@ _tailscale_route() {
     . "${TAILSCALE_ROOT}/tailscale-env"
 
     echo "This will enable you to expose Tailnet devices to machines on your network."
-    echo "This is an ALPHA feature, and may break your system."
-    yes_or_no "Do you wish to proceed?" && exit 1 || {
-    # IF_CHOICE=${IF_CHOICE:-N}
-    # echo "${IF_CHOICE}" # Remove before submitting PR
-    echo ${yn}
-    sleep 5s # Remove before submitting PR
-    # if [[ ${IF_CHOICE} == [Nn]* ]]; then
-    #     echo "Tailnet routing NOT enabled."
-    #     exit 1
-    # else
-        case $2 in
-            "enable")
-                export TAILSCALED_INTERFACE="true"
-                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                sleep 5s # Remove before submitting PR
-                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
-                export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
-                ;;
-            "disable")
-                export TAILSCALED_INTERFACE="false"
-                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                sleep 5s # Remove before submitting PR
-                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
-                export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
-                ;;
-        esac
-    # fi
+    echo "WARNING: It is currently an ALPHA feature, and may break your system."
+    yes_or_no "Do you wish to proceed?" && {
+        # IF_CHOICE=${IF_CHOICE:-N}
+        # echo "${IF_CHOICE}" # Remove before submitting PR
+        echo ${yn}
+        sleep 5s # Remove before submitting PR
+        # if [[ ${IF_CHOICE} == [Nn]* ]]; then
+        #     echo "Tailnet routing NOT enabled."
+        #     exit 1
+        # else
+            case $2 in
+                "enable")
+                    export TAILSCALED_INTERFACE="true"
+                    echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+                    sleep 5s # Remove before submitting PR
+                    sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
+                    export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+                    ;;
+                "disable")
+                    export TAILSCALED_INTERFACE="false"
+                    echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+                    sleep 5s # Remove before submitting PR
+                    sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
+                    export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+                    ;;
+            esac
+        # fi
+
+        # if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
+        #     export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+        # else
+        #     export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+        # fi
+
+        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+
+        echo "Restarting Tailscale daemon to detect new configuration..."
+        systemctl restart tailscaled.service || {
+            echo "Failed to restart Tailscale daemon"
+            echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
+            exit 1
+            }
+        } || exit 1
     }
-
-    # if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
-    #     export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
-    # else
-    #     export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
-    # fi
-
-    sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
-
-    echo "Restarting Tailscale daemon to detect new configuration..."
-    systemctl restart tailscaled.service || {
-        echo "Failed to restart Tailscale daemon"
-        echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
-        exit 1
-    }
-}
 yes_or_no() {
     while true; do
-        read -p "$* [y/n]: " yn
+        read -p "$* [y/N]: " yn
         yn=${yn:-N}
         case $yn in
             [Yy]*) return 0  ;;
