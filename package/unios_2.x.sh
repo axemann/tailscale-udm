@@ -125,10 +125,6 @@ _tailscale_uninstall() {
 }
 
 _tailscale_route() {
-    # Load the tailscale-env file to discover the flags which are required to be set
-    # shellcheck source=package/tailscale-env
-    . "${TAILSCALE_ROOT}/tailscale-env"
-
     echo "This will enable you to expose Tailnet devices to machines on your network."
     echo "WARNING: It is currently an ALPHA feature, and may break your system."
     yes_or_no "Do you wish to proceed?" && {
@@ -155,6 +151,8 @@ _tailscale_route() {
                 sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
                 export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
                 ;;
+            *)
+                echo "Something went wrong! :-("
         esac
         # fi
 
@@ -171,7 +169,7 @@ _tailscale_route() {
             exit 1
         else
             echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
-            sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+            sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" ${TAILSCALE_DEFAULTS}
             echo "Done"
         fi
 
