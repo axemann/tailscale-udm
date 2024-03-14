@@ -151,6 +151,11 @@ case $1 in
         "enable")
           _tailscale_route $2
         ;;
+        "disable")
+          _tailscale_route $2
+        ;;
+        *)
+          echo "Usage: $0 $1 {enable|disable}"
       esac
 
     fi
