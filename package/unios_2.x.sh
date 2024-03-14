@@ -134,30 +134,28 @@ _tailscale_route() {
     yes_or_no "Do you wish to proceed?" && {
         # IF_CHOICE=${IF_CHOICE:-N}
         # echo "${IF_CHOICE}" # Remove before submitting PR
-        echo ${yn}
+        echo ${yn} # Remove before submitting PR
         sleep 5s # Remove before submitting PR
         # if [[ ${IF_CHOICE} == [Nn]* ]]; then
         #     echo "Tailnet routing NOT enabled."
         #     exit 1
         # else
-            case $2 in
-                "enable")
-                    export TAILSCALED_INTERFACE="true"
-                    echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                    sleep 5s # Remove before submitting PR
-                    sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
-                    export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
-                    echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
-                    ;;
-                "disable")
-                    export TAILSCALED_INTERFACE="false"
-                    echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
-                    sleep 5s # Remove before submitting PR
-                    sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
-                    export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
-                    echo "${TAILSCALED_FLAGS}" # Remove before submitting PR
-                    ;;
-            esac
+        case $2 in
+            "enable")
+                export TAILSCALED_INTERFACE="true"
+                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+                sleep 5s # Remove before submitting PR
+                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
+                export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+                ;;
+            "disable")
+                export TAILSCALED_INTERFACE="false"
+                echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+                sleep 5s # Remove before submitting PR
+                sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
+                export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+                ;;
+        esac
         # fi
 
         # if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
