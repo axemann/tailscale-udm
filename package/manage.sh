@@ -140,6 +140,17 @@ case $1 in
       echo "Tailscale is already up to date"
     fi
     ;;
+  "route")
+    # shellcheck source=package/tailscale-env
+    . "${PACKAGE_ROOT}/tailscale-env"
+
+    if ! _tailscale_is_installed; then
+      echo "Tailscale is not installed, please run '$0 install' before using this option."
+      exit 1
+    else
+      _tailscale_route
+    fi
+    ;;
   "on-boot")
     # shellcheck source=package/tailscale-env
     . "${PACKAGE_ROOT}/tailscale-env"
@@ -155,7 +166,7 @@ case $1 in
     tailscale_start
     ;;
   *)
-    echo "Usage: $0 {status|start|stop|restart|install|uninstall|update}"
+    echo "Usage: $0 {status|start|stop|restart|install|uninstall|update|route}"
     exit 1
     ;;
 esac

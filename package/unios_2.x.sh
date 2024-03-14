@@ -39,25 +39,6 @@ _tailscale_install() {
     # shellcheck source=package/tailscale-env
     . "${TAILSCALE_ROOT}/tailscale-env"
 
-    if [ -z $TAILSCALED_INTERFACE ]; then
-        read -p "Do you wish to enable subnet routing? (y/N):" IF_CHOICE
-        IF_CHOICE=${IF_CHOICE:-n}
-        echo "${IF_CHOICE}"
-        sleep 5s
-        case $1 in
-            [Yy]*) export TAILSCALED_INTERFACE="true"
-            sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"" ${TAILSCALE_ROOT}/tailscale-env
-            echo "${TAILSCALED_INTERFACE}"
-            sleep 5s
-            ;;
-            [Nn]*) export TAILSCALED_INTERFACE="false"
-            sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"" ${TAILSCALE_ROOT}/tailscale-env
-            echo "${TAILSCALED_INTERFACE}"
-            sleep 5s
-            ;;
-        esac
-    fi
-
     TAILSCALE_VERSION="${1:-$(curl -sSLq --ipv4 "https://pkgs.tailscale.com/${TAILSCALE_CHANNEL}/?mode=json" | jq -r '.Tarballs.arm64 | capture("tailscale_(?<version>[^_]+)_").version')}"
 
     echo "Installing latest Tailscale package repository..."
@@ -77,7 +58,8 @@ _tailscale_install() {
 
     echo "Configuring Tailscale port..."
     if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
-        echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
+        echo "Failed to configure Tailscale port"
+        echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line PORT=\"${PORT:-41641}\"."
         exit 1
     else
         sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" $TAILSCALE_DEFAULTS
@@ -85,16 +67,12 @@ _tailscale_install() {
     fi
 
     echo "Configuring Tailscaled startup flags..."
-    if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
-        export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
-    else
-        export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
-    fi
     if [ ! -e "${TAILSCALE_DEFAULTS}" ]; then
-        echo "${TAILSCALE_DEFAULTS} is missing.  Create file or reinstall Tailscale."
+        echo "Failed to configure Tailscaled startup flags"
+        echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
         exit 1
     else
-        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+        sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
 
@@ -144,4 +122,44 @@ _tailscale_uninstall() {
 
     systemctl disable tailscale-install.service || true
     rm -f /lib/systemd/system/tailscale-install.service || true
+}
+
+_tailscale_route() {
+    # Load the tailscale-env file to discover the flags which are required to be set
+    # shellcheck source=package/tailscale-env
+    . "${TAILSCALE_ROOT}/tailscale-env"
+
+    echo "This will enable you to expose Tailnet devices to machines on your network."
+    echo "This is an ALPHA feature, and may break your system."
+    read -p "Do you wish to proceed? (y/N):" IF_CHOICE
+    IF_CHOICE=${IF_CHOICE:-N}
+    echo "${IF_CHOICE}" # Remove before submitting PR
+    sleep 5s # Remove before submitting PR
+    case $IF_CHOICE in
+        [Yy]*) export TAILSCALED_INTERFACE="true"
+        echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+        sleep 5s # Remove before submitting PR
+        sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
+        ;;
+        [Nn]*) export TAILSCALED_INTERFACE="false"
+        echo "${TAILSCALED_INTERFACE}" # Remove before submitting PR
+        sleep 5s # Remove before submitting PR
+        sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
+        ;;
+    esac
+
+    if [ "${TAILSCALED_INTERFACE}" = 'false' ]; then
+        export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+    else
+        export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+    fi
+
+    sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
+
+    echo "Restarting Tailscale daemon to detect new configuration..."
+    systemctl restart tailscaled.service || {
+        echo "Failed to restart Tailscale daemon"
+        echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
+        exit 1
+    }
 }
