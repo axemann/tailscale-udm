@@ -162,7 +162,7 @@ _tailscale_routing() {
                     ln -s "${TAILSCALE_ROOT}/tailscale-monitor.service" /etc/systemd/system/tailscale-monitor.service
 
                     systemctl daemon-reload
-                    systemctl enable --now tailscale-install.service
+                    systemctl enable --now tailscale-monitor.service
                 fi
                 ;;
             "disable")
