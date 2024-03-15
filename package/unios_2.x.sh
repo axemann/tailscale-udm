@@ -89,6 +89,8 @@ _tailscale_install() {
 		ExecStart=/usr/sbin/tailscaled --port=${PORT} $FLAGS
 		EOF
 
+        systemctl daemon-reload
+
     echo "Restarting Tailscale daemon to detect new configuration..."
     systemctl restart tailscaled.service || {
         echo "Failed to restart Tailscale daemon"
