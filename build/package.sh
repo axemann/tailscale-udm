@@ -15,6 +15,8 @@ cp "${SOURCE}/package/tailscale-env" "${WORKDIR}/tailscale/tailscale-env"
 cp "${SOURCE}/package/tailscale-install.service" "${WORKDIR}/tailscale/tailscale-install.service"
 cp "${SOURCE}/package/tailscale-install.timer" "${WORKDIR}/tailscale/tailscale-install.timer"
 cp "${SOURCE}/LICENSE" "${WORKDIR}/tailscale/LICENSE"
+cp "${SOURCE}/package/failover_monitor.sh" "${WORKDIR}/tailscale/"
+cp "${SOURCE}/package/tailscale-monitor.service" "${WORKDIR}/tailscale/"
 
 echo "Building tailscale-udm package"
 mkdir -p "${DEST}"
