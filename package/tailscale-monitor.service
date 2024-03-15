@@ -1,5 +1,5 @@
 [Unit]
-Description=Tailscale-UDM WAN failover monitor
+Description=Tailscale UDM WAN failover monitor
 After=network.target
 
 [Service]
