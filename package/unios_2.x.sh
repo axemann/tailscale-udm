@@ -209,7 +209,9 @@ _udm_set_tailnet_routes() {
     # https://github.com/SierraSoftworks/tailscale-udm/discussions/51#discussioncomment-6130392,
     # with edits
     ROUTES=$( /sbin/ip route | /bin/grep "dev br" | /usr/bin/cut -d " " -f 1-3 )
-    echo "${ROUTES}" | while read -r route; do /sbin/ip route del ${route} table 52; done
+    if [ $"(ip route list table 52 | grep 'scope')" ]; then
+        echo "${ROUTES}" | while read -r route; do /sbin/ip route del ${route} table 52; done
+    fi
     echo "${ROUTES}" | while read -r route; do /sbin/ip route add ${route} table 52; done
 }
 
