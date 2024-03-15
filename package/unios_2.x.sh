@@ -223,7 +223,7 @@ yes_or_no() {
         yn=${yn:-N}
         case $yn in
             [Yy]*) return 0  ;;
-            [Nn]*) echo "Aborted. No changes made to routing configuration." ; return  1 ;;
+            [Nn]*) printf "\nAborted. No changes made to routing configuration.\n\n" ; return  1 ;;
         esac
     done
 }
