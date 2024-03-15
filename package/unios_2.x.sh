@@ -153,7 +153,9 @@ _tailscale_routing() {
                 # export TAILSCALED_INTERFACE="true"
                 # sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"true\"/" ${TAILSCALE_ROOT}/tailscale-env
                 export TAILSCALED_FLAGS="--socket \/var\/run\/tailscale\/tailscaled.sock --state \/data\/tailscale\/tailscaled.state"
+                echo "Updating routing tables..."
                 _udm_set_tailnet_routes
+                echo "Enabling IPv4/IPv6 forwarding..."
                 _enable_ip_forwarding
                 ;;
             "disable")
@@ -181,7 +183,7 @@ _tailscale_routing() {
             echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
             exit 1
             }
-        } || exit 1 && echo "No changes made to routing configuration."
+        }
     }
 
 _udm_set_tailnet_routes() {
@@ -221,7 +223,7 @@ yes_or_no() {
         yn=${yn:-N}
         case $yn in
             [Yy]*) return 0  ;;
-            [Nn]*) echo "Aborted" ; return  1 ;;
+            [Nn]*) echo "Aborted. No changes made to routing configuration." ; return  1 ;;
         esac
     done
 }
