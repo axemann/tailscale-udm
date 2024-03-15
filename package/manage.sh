@@ -66,7 +66,7 @@ tailscale_stop() {
 
 tailscale_install() {
   _tailscale_install "$1"
-  printf "Installation complete, run '$0 start' to start Tailscale\n\n"
+  printf "\nInstallation complete, run '$0 start' to start Tailscale\n\n"
 }
 
 tailscale_uninstall() {

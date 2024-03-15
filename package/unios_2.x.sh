@@ -124,7 +124,6 @@ _tailscale_install() {
 
         systemctl daemon-reload
         systemctl enable --now tailscale-install.timer
-        printf "Done\n\n"
     fi
 
 }
