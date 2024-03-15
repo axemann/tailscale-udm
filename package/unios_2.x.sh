@@ -138,6 +138,9 @@ _tailscale_uninstall() {
     systemctl disable tailscale-install.timer || true
     rm -f /etc/systemd/system/tailscale-install.timer || true
 
+    systemctl disable --now tailscale-monitor.service || true
+    rm -f /etc/systemd/system/tailscale-monitor.service || true
+
     rm -rf /etc/systemd/system/tailscaled.service.d/override.conf || true
 
     systemctl daemon-reload
