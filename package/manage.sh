@@ -67,7 +67,7 @@ tailscale_stop() {
 tailscale_install() {
   _tailscale_install "$1"
   
-  echo "Installation complete, run '$0 start' to start Tailscale"
+  echo -e "Installation complete, run '$0 start' to start Tailscale\n"
 }
 
 tailscale_uninstall() {

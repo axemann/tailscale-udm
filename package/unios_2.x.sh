@@ -73,7 +73,6 @@ _tailscale_install() {
         echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
         exit 1
     else
-        echo "Flags from environment file are: ${TAILSCALED_FLAGS}"
         sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
@@ -88,18 +87,18 @@ _tailscale_install() {
 		ExecStart=
 		ExecStart=/usr/sbin/tailscaled --port=${PORT} $FLAGS
 		EOF
-
-        systemctl daemon-reload
+    systemctl daemon-reload
+    echo "Done"
 
     echo "Restarting Tailscale daemon to detect new configuration..."
-    systemctl restart tailscaled.service || {
+    systemctl restart tailscaled.service && echo "Done" || {
         echo "Failed to restart Tailscale daemon"
         echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
         exit 1
     }
 
     echo "Enabling Tailscale to start on boot..."
-    systemctl enable tailscaled.service || {
+    systemctl enable tailscaled.service && echo "Done" || {
         echo "Failed to enable Tailscale to start on boot"
         echo "You can enable it manually using 'systemctl enable tailscaled'."
         exit 1
@@ -110,11 +109,12 @@ _tailscale_install() {
             rm -f /etc/systemd/system/tailscale-install.service
         fi
 
-        echo "Installing pre-start script to install Tailscale on firmware updates."
+        echo "Installing pre-start script to install Tailscale on firmware updates..."
         ln -s "${TAILSCALE_ROOT}/tailscale-install.service" /etc/systemd/system/tailscale-install.service
 
         systemctl daemon-reload
         systemctl enable tailscale-install.service
+        echo "Done"
     fi
 
     if [ ! -L "/etc/systemd/system/tailscale-install.timer" ]; then
@@ -122,11 +122,12 @@ _tailscale_install() {
             rm -f /etc/systemd/system/tailscale-install.timer
         fi
 
-        echo "Installing auto-update timer to ensure that Tailscale is kept installed and up to date."
+        echo "Installing auto-update timer to ensure that Tailscale is kept installed and up to date..."
         ln -s "${TAILSCALE_ROOT}/tailscale-install.timer" /etc/systemd/system/tailscale-install.timer
 
         systemctl daemon-reload
         systemctl enable --now tailscale-install.timer
+        echo -e "Done\n"
     fi
 
 }
