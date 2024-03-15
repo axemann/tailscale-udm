@@ -172,8 +172,8 @@ _tailscale_routing() {
                 export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
                 if [ -L "/etc/systemd/system/tailscale-monitor.service" ]; then
                     echo "Removing WAN failover monitor service..."
-                    systemctl stop tailscale-install.service
-                    systemctl disable tailscale-install.service
+                    systemctl stop tailscale-monitor.service
+                    systemctl disable tailscale-monitor.service
                     rm -f /etc/systemd/system/tailscale-monitor.service
                     systemctl daemon-reload
                 fi
