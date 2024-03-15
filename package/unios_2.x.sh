@@ -157,6 +157,13 @@ _tailscale_routing() {
                 _udm_set_tailnet_routes
                 echo "Enabling IPv4/IPv6 forwarding..."
                 _enable_ip_forwarding
+                if [ ! -L "/etc/systemd/system/tailscale-monitor.service" ]; then
+                    echo "Installing script to monitor for WAN failover events..."
+                    ln -s "${TAILSCALE_ROOT}/tailscale-monitor.service" /etc/systemd/system/tailscale-monitor.service
+
+                    systemctl daemon-reload
+                    systemctl enable --now tailscale-install.service
+                fi
                 ;;
             "disable")
                 ## Uncomment below once out of BETA
