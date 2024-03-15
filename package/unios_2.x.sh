@@ -170,6 +170,13 @@ _tailscale_routing() {
                 # export TAILSCALED_INTERFACE="false"
                 # sed -i "s/TAILSCALED_INTERFACE=\"[^\"]*\"/TAILSCALED_INTERFACE=\"false\"/" ${TAILSCALE_ROOT}/tailscale-env
                 export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
+                if [ -L "/etc/systemd/system/tailscale-monitor.service" ]; then
+                    echo "Removing WAN failover monitor service..."
+                    systemctl stop tailscale-install.service
+                    systemctl disable tailscale-install.service
+                    rm -f /etc/systemd/system/tailscale-monitor.service
+                    systemctl daemon-reload
+                fi
                 ;;
             *)
                 echo "Something went wrong. No changes made to routing configuration."
