@@ -1,5 +1,5 @@
 [Unit]
-Description=Ensure that Tailscale is routing out the correct WAN interface
+Description=Tailscale-UDM WAN failover monitor
 After=network.target
 
 [Service]
