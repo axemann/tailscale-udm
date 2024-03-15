@@ -163,7 +163,7 @@ _tailscale_routing() {
                 export TAILSCALED_FLAGS="--state \/data\/tailscale\/tailscaled.state --tun userspace-networking"
                 ;;
             *)
-                echo "Something went wrong! :-("
+                echo "Something went wrong. No changes made to routing configuration."
         esac
 
         echo "Updating ${TAILSCALE_DEFAULTS} to ${1} Tailnet routing..."
@@ -198,13 +198,19 @@ _enable_ip_forwarding() {
     # https://github.com/SierraSoftworks/tailscale-udm/discussions/51#discussioncomment-5664351 and
     # https://tailscale.com/kb/1019/subnets/#enable-ip-forwarding
     if [ -d /etc/sysctl.d ]; then
-        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
-        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
-        sysctl -p /etc/sysctl.d/99-tailscale.conf
+        tee /etc/sysctl.d/99-tailscale.conf <<- "EOF" > /dev/null
+			net.ipv4.ip_forward=1
+			net.ipv6.conf.all.forwarding=1
+			EOF
+        sysctl -p /etc/sysctl.d/99-tailscale.conf > /dev/null
     else
-        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.conf
-        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.conf
-        sysctl -p /etc/sysctl.conf
+        sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
+        sed -i '/net.ipv6.conf.all.forwarding/d' /etc/sysctl.conf
+        tee -a /etc/sysctl.conf <<- "EOF" > /dev/null
+			net.ipv4.ip_forward=1
+			net.ipv6.conf.all.forwarding=1
+			EOF
+        sysctl -p /etc/sysctl.conf > /dev/null
     fi
 }
 
