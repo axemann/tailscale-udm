@@ -64,7 +64,6 @@ _tailscale_install() {
         exit 1
     else
         sed -i "s/PORT=\"[^\"]*\"/PORT=\"${PORT:-41641}\"/" $TAILSCALE_DEFAULTS
-        echo "Done"
     fi
 
     echo "Configuring Tailscaled startup flags..."
@@ -74,7 +73,6 @@ _tailscale_install() {
         exit 1
     else
         sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
-        echo "Done"
     fi
 
     echo "Installing SystemD override to clean up service parameters..."
@@ -88,17 +86,17 @@ _tailscale_install() {
 		ExecStart=/usr/sbin/tailscaled --port=${PORT} $FLAGS
 		EOF
     systemctl daemon-reload
-    echo "Done"
+
 
     echo "Restarting Tailscale daemon to detect new configuration..."
-    systemctl restart tailscaled.service && echo "Done" || {
+    systemctl restart tailscaled.service || {
         echo "Failed to restart Tailscale daemon"
         echo "The daemon might not be running with userspace networking enabled, you can restart it manually using 'systemctl restart tailscaled'."
         exit 1
     }
 
     echo "Enabling Tailscale to start on boot..."
-    systemctl enable tailscaled.service && echo "Done" || {
+    systemctl enable tailscaled.service || {
         echo "Failed to enable Tailscale to start on boot"
         echo "You can enable it manually using 'systemctl enable tailscaled'."
         exit 1
@@ -114,7 +112,6 @@ _tailscale_install() {
 
         systemctl daemon-reload
         systemctl enable tailscale-install.service
-        echo "Done"
     fi
 
     if [ ! -L "/etc/systemd/system/tailscale-install.timer" ]; then
@@ -175,7 +172,6 @@ _tailscale_routing() {
             exit 1
         else
             sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"${TAILSCALED_FLAGS}\"/" ${TAILSCALE_DEFAULTS}
-            echo "Done"
         fi
 
         echo "Restarting Tailscale daemon to detect new configuration..."
