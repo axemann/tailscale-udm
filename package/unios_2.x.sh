@@ -2,6 +2,7 @@
 export TAILSCALE_ROOT="${TAILSCALE_ROOT:-/data/tailscale}"
 export TAILSCALE="tailscale"
 export TAILSCALE_DEFAULTS="/etc/default/tailscaled"
+export TS_OVERRIDE_DIR="/etc/systemd/system/tailscaled.service.d"
 
 _tailscale_is_running() {
     systemctl is-active --quiet tailscaled
@@ -72,12 +73,12 @@ _tailscale_install() {
         echo "Check that the file ${TAILSCALE_DEFAULTS} exists and contains the line FLAGS=\"--state /data/tailscale/tailscale.state ${TAILSCALED_FLAGS}\"."
         exit 1
     else
+        echo "Flags from environment file are: ${TAILSCALED_FLAGS}"
         sed -i "s/FLAGS=\"[^\"]*\"/FLAGS=\"--state \/data\/tailscale\/tailscaled.state ${TAILSCALED_FLAGS}\"/" $TAILSCALE_DEFAULTS
         echo "Done"
     fi
 
     echo "Installing SystemD override to clean up service parameters..."
-    export TS_OVERRIDE_DIR="/etc/systemd/system/tailscaled.service.d"
     if [ ! -d "${TS_OVERRIDE_DIR}" ]; then
         mkdir -p "${TS_OVERRIDE_DIR}"
     fi
@@ -87,7 +88,6 @@ _tailscale_install() {
 		ExecStart=
 		ExecStart=/usr/sbin/tailscaled --port=${PORT} $FLAGS
 		EOF
-
 
     echo "Restarting Tailscale daemon to detect new configuration..."
     systemctl restart tailscaled.service || {
@@ -134,7 +134,12 @@ _tailscale_uninstall() {
     rm -f /etc/apt/sources.list.d/tailscale.list || true
 
     systemctl disable tailscale-install.service || true
-    rm -f /lib/systemd/system/tailscale-install.service || true
+    rm -f /etc/systemd/system/tailscale-install.service || true
+
+    systemctl disable tailscale-install.timer || true
+    rm -f /etc/systemd/system/tailscale-install.timer || true
+
+    systemctl daemon-reload
 }
 
 _tailscale_routing() {
