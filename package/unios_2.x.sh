@@ -206,6 +206,9 @@ _enable_ip_forwarding() {
 			EOF
         sysctl -p /etc/sysctl.d/99-tailscale.conf > /dev/null
     else
+        if [ ! -e "/etc/sysctl.conf.orig" ]; then
+            cp -f /etc/sysctl.conf /etc/sysctl.conf.orig || exit 1 && echo "Backup of /etc/sysctl.conf failed. Exiting."
+        fi
         sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
         sed -i '/net.ipv6.conf.all.forwarding/d' /etc/sysctl.conf
         tee -a /etc/sysctl.conf <<- "EOF" > /dev/null
