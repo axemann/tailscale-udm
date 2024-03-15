@@ -1,6 +1,7 @@
 PORT="41641"
 ## Uncomment below once enough people have tested
 # TAILSCALED_INTERFACE=""
-TAILSCALE_FLAGS="--tun userspace-networking"
+TAILSCALED_FLAGS="--tun userspace-networking"
+TAILSCALE_FLAGS=""
 TAILSCALE_AUTOUPDATE="true"
 TAILSCALE_CHANNEL="stable"
