@@ -8,14 +8,17 @@ trap 'rm -rf ${WORKDIR}' EXIT
 
 echo "Preparing temporary build directory"
 mkdir -p "${WORKDIR}/tailscale"
-cp -R "${SOURCE}/package" "${WORKDIR}/tailscale"
+cp -R "${SOURCE}/package/" "${WORKDIR}/tailscale"
 cp "${SOURCE}/LICENSE" "${WORKDIR}/tailscale/LICENSE"
 
 mkdir -p "${WORKDIR}/on_boot.d"
 mv "${WORKDIR}/tailscale/on-boot.sh" "${WORKDIR}/on_boot.d/10-tailscaled.sh"
 
-# cp "${SOURCE}/package/failover_monitor.sh" "${WORKDIR}/tailscale/"
-# cp "${SOURCE}/package/tailscale-monitor.service" "${WORKDIR}/tailscale/"
+echo ""
+echo "Package Contents:"
+cd "$WORKDIR"
+ls -l ./*
+echo ""
 
 echo "Building tailscale-udm package"
 mkdir -p "${DEST}"
