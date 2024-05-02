@@ -29,7 +29,7 @@ fi
 if [ "$OS_VERSION" = '1' ]; then
   # shellcheck source=package/unios_1.x.sh
   . "$PACKAGE_ROOT/unios_1.x.sh"
-elif [ "$OS_VERSION" = '2' ] || [ "$OS_VERSION" = '3' ]; then
+elif [ "$OS_VERSION" = '2' ] || [ "$OS_VERSION" = '3' ] || [ "$OS_VERSION" = '4' ]; then
   # shellcheck source=package/unios_2.x.sh
   . "$PACKAGE_ROOT/unios_2.x.sh"
 else
@@ -66,7 +66,8 @@ tailscale_stop() {
 
 tailscale_install() {
   _tailscale_install "$1"
-  printf "\nInstallation complete, run '$0 start' to start Tailscale\n\n"
+
+  echo "Installation complete, run '$0 start' to start Tailscale"
 }
 
 tailscale_uninstall() {
